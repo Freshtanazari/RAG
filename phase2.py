@@ -29,6 +29,9 @@ from dotenv import load_dotenv
 import requests
 from pypdf import PdfReader
 
+# for semantic chunking isntall the following
+# pip install langchain-text-splitters
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # The following pdf is a research paper titled: Attention is all you need
 reader = PdfReader("NIPS-2017-attention-is-all-you-need-Paper.pdf")
@@ -45,6 +48,11 @@ for page in reader.pages:
    
 documents_chunks = []
 
+all_text =""
+for page in reader.pages:
+    all_text += page.extract_text()
+all_text = all_text.split("Reference \n [1]")[0]
+
 
 def fixed_size_chunks(chunk_size, overlap, documents):
     # documents should be an array of strings
@@ -57,8 +65,10 @@ def fixed_size_chunks(chunk_size, overlap, documents):
             current_size += chunk_size
     return documents_chunks
 
-documents_chunks = fixed_size_chunks(chunk_size=600, overlap=80, documents=pages)
-
+# documents_chunks = fixed_size_chunks(chunk_size=600, overlap=80, documents=pages)
+# semantic chunking
+splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=20, separators=["\n\n", "\n", ".", " ", ""] )
+documents_chunks = splitter.split_text(all_text)
 # embed the documents
 model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
 document_embeddings = model.encode(documents_chunks)
@@ -100,7 +110,7 @@ response = client.chat.completions.create(
 answer = response.choices[0].message.content
 print(answer)
 
-# answer retrieved: 
+# answer retrieved for fixed-size chunking: 
 # According to the provided context, Attention is important for several reasons:
 
 # 1. **Capturing long-range dependencies**: Attention mechanisms like self-attention help capture dependencies between distant positions in a sequence, which is difficult for models to learn.
@@ -109,3 +119,10 @@ print(answer)
 # 4. **Flexibility and robustness**: Attention-based models can be designed to attend to different parts of the input sequence in different ways, making them more flexible and robust than traditional models.
 
 # Overall, Attention is important because it enables models to effectively process and learn from sequential data by capturing long-range dependencies, learning multiple tasks, and improving model performance.
+
+#answer retrieved for semantic chunking method: 
+# According to the context, Attention is important because it 
+#'may allow the model to extrapolate to sequence lengths longer than
+#  the ones encountered during training.' This suggests thatAttention mechanisms
+#  are beneficial for handling sequences of varying lengths, making the model
+#  more adaptable and capable of generalizing to unseen or longer sequences.
