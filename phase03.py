@@ -18,6 +18,9 @@
 # an improved version of TF-IDF(term frequency-inverse Document Frequency)
 # normalizes docs, matching for exact term or near-term matches
 
+# note: Hybrid search combines both, so you get
+#  semantic recall and lexical precision instead of picking one.
+
 # install BM25
 # pip install rank-bm25
 
@@ -92,7 +95,8 @@ distances, indices = index.search(question_embedding, k=num_docs)
 # indices that shows the positions of the most similar docs in the original doc
 semantic_scores = np.zeros(num_docs)
 
-# change the distance to similarity so that the higher score the better result
+# change the distance to similarity so that the higher 
+# score the better result
 for dist, idx in zip(distances[0], indices[0]):
     semantic_scores[idx] = 1 / (1+dist)
 
