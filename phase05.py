@@ -213,7 +213,7 @@ print(answer)
 # lets the model jointly attend to information from multiple representation sub‑spaces.
 
 
-# bug faced: the similarity score i got using the formula couldnt capture the
+# problem faced: the similarity score i got using the formula couldnt capture the
 # relevance of the document properly. 
 # you can observe it in the two following question and their similarity score
 # what is self-attention? similarity_score = 0.399  , result = exited the program  lower than threshold
